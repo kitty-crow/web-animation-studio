@@ -23,7 +23,8 @@
     "src/**/*.ts",
     "src/**/*.tsx",
     "scripts/**/*.ts",
-    "pages.config.ts"
+    "pages.config.ts",
+    "tests/**/*.ts"
   ],
   "exclude": [
     "vendor",

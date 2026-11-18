@@ -47,3 +47,6 @@ The default model is MobileNetV3 FP32. The four ONNX release assets are provisio
 - [src/worker/ort](modules/src/worker/ort.md)
 - [src/worker/probe](modules/src/worker/probe.md)
 - [src/worker/infer](modules/src/worker/infer.md)
+- [scripts/smoke](modules/scripts/smoke.md)
+- [tests/gif.test](modules/tests/gif.test.md)
+- [tests/half.test](modules/tests/half.test.md)

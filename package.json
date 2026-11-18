@@ -10,8 +10,10 @@
   "homepage": "https://kitty-crow.github.io/web-animation-studio/",
   "scripts": {
     "guard": "bun scripts/guard.ts",
-    "check": "bun vendor/pages/src/cli.ts version check && bun vendor/pages/src/cli.ts check pages.config.ts && tsc --noEmit && bun run guard",
-    "build": "bun run check && bun scripts/site.ts"
+    "check": "bun vendor/pages/src/cli.ts version check && bun vendor/pages/src/cli.ts check pages.config.ts && tsc --noEmit && bun run test && bun run guard",
+    "build": "bun run check && bun scripts/site.ts",
+    "test": "bun test tests",
+    "smoke": "bun scripts/smoke.ts"
   },
   "dependencies": {
     "react": "19.2.0",
@@ -23,7 +25,8 @@
     "@types/react": "19.2.2",
     "@types/react-dom": "19.2.2",
     "@webgpu/types": "0.1.69",
-    "typescript": "5.9.3"
+    "typescript": "5.9.3",
+    "playwright": "1.55.0"
   },
   "engines": {
     "bun": ">=1.3.14"
