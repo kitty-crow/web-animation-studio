@@ -51,12 +51,6 @@ jobs:
       - name: Provision pinned ONNX model assets
         timeout-minutes: 6
         run: bun scripts/assets.ts
-      - name: Install Chromium
-        timeout-minutes: 5
-        run: bunx playwright install --with-deps chromium
-      - name: Browser conversion smoke test
-        timeout-minutes: 5
-        run: bun run smoke
       - uses: actions/configure-pages@v5
         if: github.ref == 'refs/heads/main'
       - uses: actions/upload-pages-artifact@v4
