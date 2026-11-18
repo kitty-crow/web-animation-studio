@@ -5,6 +5,7 @@ import { unpackRuntime, type RuntimeAssets } from './runtime';
 import { prepareOrt } from './ort';
 import { probeRuntime } from './probe';
 import { inferMasks, type InputFrames } from './infer';
+// The probe isolates runtime initialisation from model loading. A worker-level rejection signal catches asynchronous Emscripten failures that can otherwise leave the session promise unresolved.
 async function runBackend(input: InputFrames,model: Uint8Array,assets: RuntimeAssets,backend: Backend): Promise<Uint8Array[]> {
  let session: InferenceSession|null=null,stage='runtime module';
  const urls: string[]=[];

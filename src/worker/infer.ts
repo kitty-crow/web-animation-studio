@@ -4,6 +4,7 @@ import { send } from './progress';
 import type { Ort, Report } from './ort';
 import { toHalf, fromHalf } from './half';
 export interface InputFrames { frames: Frame[]; w: number; h: number; settings: Settings }
+// RVM recurrent states must retain the model's precision and survive between frames. Only the downsample ratio is always FP32; each frame releases the old states after inference.
 export async function inferMasks(ort: Ort,session: InferenceSession,backend: Backend,inputFrames: InputFrames,report: Report): Promise<Uint8Array[]> {
  const {frames,w,h,settings}=inputFrames;
  const gpu=backend==='webgpu';

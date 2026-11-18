@@ -40,6 +40,7 @@ function rows(height: number,interlaced: boolean): number[] {
  for(const [start,step] of interlaced?[[0,8],[4,8],[2,4],[1,2]]:[[0,1]])for(let y=start;y<height;y+=step)order.push(y);
  return order;
 }
+// The logical canvas survives across image blocks; disposal restores the preceding canvas before the next block is composited. The inspection path deliberately reads block metadata without allocating a full canvas.
 export function parseGIF(bytes: Uint8Array,decode: boolean,onFrame: (data: Uint8ClampedArray, delay: number, index: number)=>void = ()=>undefined): GifMeta{
  const r=new Reader(bytes),header=String.fromCharCode(...r.take(6));if(header!=='GIF87a'&&header!=='GIF89a')throw Error('This file is not a valid GIF.');
  const w=r.word(),h=r.word();if(!w||!h||w*h>24000000)throw Error('GIF canvas exceeds the 24-megapixel safety limit.');let packed=r.byte(),bg=r.byte();r.byte();let global=packed&128?r.table(1<<((packed&7)+1)):null;

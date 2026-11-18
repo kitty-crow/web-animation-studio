@@ -1,0 +1,74 @@
+name: Correct unused mutable bindings
+on:
+  push:
+    branches: [feat/modular-typescript]
+    paths: ['.github/workflows/const-cleanup.yml']
+permissions:
+  contents: write
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: feat/modular-typescript
+          submodules: recursive
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.14
+      - run: bun install
+      - run: bun install
+        working-directory: vendor/code-guards
+      - name: Apply symbol-resolved const corrections
+        shell: bash
+        run: |
+          cat > .const-cleanup.ts <<'TS'
+          import ts from 'typescript';
+          import { analyse } from './vendor/code-guards/src/engine.ts';
+          import { readFile, writeFile } from 'node:fs/promises';
+          const target='tsconfig.json';
+          for(let pass=0;pass<12;pass++){
+           const {findings}=await analyse({enabled:new Set(['derived-state']),project:target,includeTests:true});
+           const warnings=findings.filter(f=>f.code==='CG313');
+           if(!warnings.length)break;
+           let edits=0;
+           for(const file of new Set(warnings.map(f=>f.location.file))){
+            const source=await readFile(file,'utf8');
+            const ast=ts.createSourceFile(file,source,ts.ScriptTarget.Latest,true);
+            const offsets=new Set(warnings.filter(f=>f.location.file===file).map(f=>ast.getPositionOfLineAndCharacter(f.location.line-1,f.location.column-1)));
+            const changes: {start:number;end:number;text:string}[]=[];
+            function walk(node: ts.Node): void {
+             if(ts.isVariableDeclarationList(node)&&node.flags&ts.NodeFlags.Let){
+              const immutable=node.declarations.map(d=>offsets.has(d.name.getStart(ast)));
+              if(immutable.every(Boolean)){
+               changes.push({start:node.getStart(ast),end:node.getStart(ast)+3,text:'const'});
+              }else if(immutable.some(Boolean)&&ts.isVariableStatement(node.parent)&&!node.parent.modifiers?.length){
+               const items=node.declarations.map((d,i)=>({kind:immutable[i]?'const':'let',source:d.getText(ast)}));
+               const list: string[]=[];
+               for(let i=0;i<items.length;i++){
+                const item=items[i];
+                list.push((i&&items[i-1].kind===item.kind?', ':'; '+item.kind)+ ' '+item.source);
+               }
+               const replacement=list.join('').replace(/^; /,'');
+               changes.push({start:node.getStart(ast),end:node.end,text:replacement});
+              }
+             }
+             ts.forEachChild(node,walk);
+            }
+            walk(ast);
+            let out=source;
+            for(const change of changes.sort((a,b)=>b.start-a.start))out=out.slice(0,change.start)+change.text+out.slice(change.end);
+            if(changes.length){await writeFile(file,out);edits+=changes.length;}
+           }
+           console.log('Pass',pass+1,'findings',warnings.length,'edits',edits);
+           if(!edits)break;
+          }
+          TS
+          bun .const-cleanup.ts
+          rm .const-cleanup.ts
+          bunx tsc --noEmit
+          git diff --stat
+          git add src scripts
+          if git diff --cached --quiet; then exit 0; fi
+          git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' commit -m 'Use const for symbol-verified immutable bindings'
+          git push origin HEAD:refs/heads/feat/modular-typescript
