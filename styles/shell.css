@@ -1,0 +1,11 @@
+.site-header { max-width:1320px; margin:auto; padding:24px 30px; display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; }
+.site-header a { text-decoration:none; }
+.site-header nav { display:flex; gap:16px; flex-wrap:wrap; }
+.site-header .brand { color:var(--text); }
+.site-page { max-width:960px; margin:0 auto; padding:30px; }
+.site-page h1 { margin-bottom:24px; }
+.site-page p { margin:12px 0; }
+.site-footer { max-width:1320px; margin:25px auto; padding:20px 30px; }
+.site-page .button { display:inline-flex; width:auto; margin:24px 0; }
+.mode-wide { grid-column:1/-1; }
+@media(max-width:530px) { .site-header,.site-page,.site-footer { padding:16px; } }

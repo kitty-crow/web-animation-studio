@@ -1,103 +1,18 @@
-export type Theme = "light" | "dark";
-
-export interface ThemeCfg {
-  readonly key: string;
-  readonly colours: Readonly<Record<Theme, string>>;
-  readonly toggle?: string;
-  readonly label?: string;
-  readonly event?: string;
-  readonly lightIcon?: string;
-  readonly darkIcon?: string;
+export type Profile = 'nes' | 'snes' | 'original';
+export type Backend = 'auto' | 'webgpu' | 'wasm';
+export type Palette = number[][];
+export type Histogram = Map<number, number>;
+export interface Frame { data: Uint8ClampedArray; delay: number }
+export interface GifMeta { width: number; height: number; frames: number; duration: number; loop: number | null }
+export interface Settings {
+ profile: Profile; width: number; height: number; sampling: string; dither: number;
+ stability: boolean; optimise: boolean; background: boolean; bgMethod: string;
+ support: number; alpha: number; backend: Backend; repair: boolean;
+ modelName?: string | null; runtimeNames?: string[];
 }
-
-export interface KofiCfg {
-  readonly user: string;
-  readonly header: string;
-  readonly footer?: string;
-  readonly page?: string;
-  readonly icon?: string;
-  readonly footerText?: string;
-  readonly separator?: string;
-  readonly desktopText?: string;
-  readonly background?: string;
-  readonly text?: string;
-  readonly wideAt?: number;
-}
-
-export interface VersionCfg {
-  readonly file: string;
-  readonly selector?: string;
-  readonly prefix?: string;
-  readonly fallback?: string;
-}
-
-export interface LibCfg {
-  readonly marked?: string;
-  readonly purify?: string;
-  readonly highlight?: string;
-}
-
-export interface ReadmeCfg {
-  readonly owner: string;
-  readonly repo: string;
-  readonly branch?: string;
-  readonly path?: string;
-  readonly content?: string;
-  readonly status?: string;
-  readonly libs?: LibCfg;
-}
-
-export interface RuntimeCfg {
-  readonly base: string;
-  readonly theme?: ThemeCfg;
-  readonly kofi?: KofiCfg;
-  readonly version?: VersionCfg;
-  readonly readme?: ReadmeCfg;
-}
-
-export interface PageCfg {
-  readonly from: string;
-  readonly route: string;
-  readonly inject?: boolean;
-  readonly keepSource?: boolean;
-  readonly legacy?: readonly string[];
-  readonly baseHref?: string;
-}
-
-export interface CopyCfg {
-  readonly from: string;
-  readonly to: string;
-}
-
-export interface CssCfg {
-  readonly files: readonly string[];
-  readonly vars?: Readonly<Record<string, string>>;
-  readonly dark?: Readonly<Record<string, string>>;
-}
-
-export interface BuildCfg {
-  readonly root?: string;
-  readonly source: string;
-  readonly out: string;
-  readonly assets?: string;
-  readonly clean?: boolean;
-  readonly copySource?: boolean;
-  readonly copy?: readonly CopyCfg[];
-  readonly pages: readonly PageCfg[];
-  readonly css?: CssCfg;
-  readonly runtime?: RuntimeCfg;
-  readonly noJekyll?: boolean;
-  readonly minify?: boolean;
-}
-
-export interface LoadedCfg {
-  readonly file: string;
-  readonly root: string;
-  readonly cfg: BuildCfg;
-}
-
-export interface BuildResult {
-  readonly out: string;
-  readonly pages: readonly string[];
-  readonly assets: readonly string[];
-}
+export interface Progress { stage?: string; waiting?: boolean; note?: string; at?: number }
+export interface PaletteContext { mapping: number[][]; errors: Float64Array[]; indices: Uint8Array[]; used: Set<number>; transparent: boolean }
+export interface Done { type: 'done'; blob: Blob; palettes: Palette[]; colourCount: number; meta: GifMeta; transparent: boolean; removed: number; skipped: number; omitted: number; requantised?: number }
+export type WorkerReply = Done | { type: 'info'; meta: GifMeta } | ({ type: 'progress'; phase: string; percent: number } & Progress) | { type: 'error' | 'runtime-diagnostic'; message: string };
+export type WorkerRequest = { type: 'inspect'; buffer: ArrayBuffer } | { type: 'convert'; buffer: ArrayBuffer; settings: Settings; model: Uint8Array | null; runtimeFiles: File[] };
+export const errorText = (error: unknown): string => error instanceof Error ? error.message : String(error);

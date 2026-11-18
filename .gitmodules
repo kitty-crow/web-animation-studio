@@ -1,0 +1,9 @@
+[submodule "vendor/pages"]
+ path = vendor/pages
+ url = https://github.com/kitty-crow/github-pages-template
+[submodule "vendor/code-guards"]
+ path = vendor/code-guards
+ url = https://github.com/kitty-crow/code-guards
+[submodule "vendor/robust-video-matting"]
+ path = vendor/robust-video-matting
+ url = https://github.com/PeterL1n/RobustVideoMatting
