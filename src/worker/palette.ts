@@ -28,7 +28,7 @@ export function renderFrame(data: Uint8ClampedArray,w: number,h: number,palettes
  let strength=settings.dither/100*(settings.profile==='nes'?76:42);
  for(let y=0;y<h;y+=block)for(let x=0;x<w;x+=block){let errorsByGroup=new Float64Array(palettes.length),tile=(y/block)*gw+x/block,xe=Math.min(w,x+block),ye=Math.min(h,y+block);
  for(let yy=y;yy<ye;yy++)for(let xx=x;xx<xe;xx++){let i=(yy*w+xx)*4;if(data[i+3]<128)continue;let k=key(data[i],data[i+1],data[i+2]);for(let g=0;g<palettes.length;g++){lookup(g,k);errorsByGroup[g]+=errors[g][k]}}
- let best=0;for(let g=1;g<palettes.length;g++)if(errorsByGroup[g]<errorsByGroup[best])best=g;const old=previous?.[tile];if(settings.stability&&old!==undefined&&errorsByGroup[old]<=errorsByGroup[best]*1.08+300)best=oldgroups[tile]=best;let pal=palettes[best];
+ let best=0;for(let g=1;g<palettes.length;g++)if(errorsByGroup[g]<errorsByGroup[best])best=g;const old=previous?.[tile];if(settings.stability&&old!==undefined&&errorsByGroup[old]<=errorsByGroup[best]*1.08+300)best=old;groups[tile]=best;let pal=palettes[best];
  for(let yy=y;yy<ye;yy++)for(let xx=x;xx<xe;xx++){let p=yy*w+xx,i=p*4;if(data[i+3]<128){out[p]=0;context.transparent=true;continue}let offset=((BAYER[(yy&3)*4+(xx&3)]+.5)/16-.5)*strength,r=clamp(data[i]+offset),g=clamp(data[i+1]+offset),b=clamp(data[i+2]+offset);let idx=lookup(best,key(r,g,b)),ci=context.mapping[best][idx];out[p]=ci;context.used.add(ci)}
  }return {out,groups}
 }

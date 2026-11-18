@@ -1,4 +1,4 @@
-import type { InferenceSession } from 'onnxruntime-web';
+import type { InferenceSession, Tensor } from 'onnxruntime-web';
 import type { Backend, Frame, Settings } from '../types';
 import { send } from './progress';
 import type { Ort, Report } from './ort';
@@ -11,7 +11,7 @@ export async function inferMasks(ort: Ort,session: InferenceSession,backend: Bac
    for(const name of ['pha','r1o','r2o','r3o','r4o'])if(!session.outputNames.includes(name))throw Error('Unsupported ONNX model output: '+name);
    const input=session.inputMetadata.find(item=>item.name==='src');
    const half=input?.isTensor && input.type==='float16';
-   let rec=Array.from({length:4},()=>half?new ort.Tensor('float16',new Uint16Array(1),[1,1,1,1]):new ort.Tensor('float32',new Float32Array(1),[1,1,1,1]));
+   let rec: Tensor[]=Array.from({length:4},()=>half?new ort.Tensor('float16',new Uint16Array(1),[1,1,1,1]):new ort.Tensor('float32',new Float32Array(1),[1,1,1,1]));
    const ratio=new ort.Tensor('float32',new Float32Array([Math.min(1,256/Math.max(w,h))]),[1]);const masks: Uint8Array[]=[],n=w*h,threshold=settings.alpha/100;
 
  try {
