@@ -1,47 +1,31 @@
 {
-  "name": "@kitty-crow/github-pages-template",
-  "version": "0.2.4",
-  "description": "Unbranded GitHub Pages build, runtime and component foundation.",
+  "name": "@kitty-crow/web-animation-studio",
+  "version": "0.1.0",
+  "private": true,
   "type": "module",
+  "description": "GIF processing and animation editing in the browser.",
   "license": "MIT",
   "author": "Kitty Crow <kitty@kittycrow.dev> (https://kittycrow.dev)",
-  "repository": "github:kitty-crow/github-pages-template",
-  "bin": {
-    "pages-template": "./src/cli.ts"
-  },
-  "exports": {
-    ".": "./src/index.ts",
-    "./runtime": "./src/run/index.ts"
-  },
-  "files": [
-    "src",
-    "web",
-    "scaffold",
-    "docs",
-    "README.md",
-    "LICENSE",
-    "version.json"
-  ],
+  "repository": "github:kitty-crow/web-animation-studio",
+  "homepage": "https://kitty-crow.github.io/web-animation-studio/",
   "scripts": {
-    "check": "bunx tsc --noEmit && bun test",
-    "test": "bun test",
-    "example:build": "bun src/cli.ts build example/pages.config.ts",
-    "example:audit-mobile": "bun src/cli.ts audit-mobile example/site",
-    "example:serve": "bun src/serve.ts example/site"
+    "guard": "bun scripts/guard.ts",
+    "check": "bun vendor/pages/src/cli.ts version check && bun vendor/pages/src/cli.ts check pages.config.ts && tsc --noEmit && bun run guard",
+    "build": "bun run check && bun scripts/site.ts"
+  },
+  "dependencies": {
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
+    "onnxruntime-web": "1.22.0"
   },
   "devDependencies": {
     "@types/bun": "1.3.14",
-    "playwright": "^1.55.0",
+    "@types/react": "19.2.2",
+    "@types/react-dom": "19.2.2",
+    "@webgpu/types": "0.1.69",
     "typescript": "5.9.3"
   },
   "engines": {
     "bun": ">=1.3.14"
-  },
-  "keywords": [
-    "github-pages",
-    "static-site",
-    "bun",
-    "typescript",
-    "submodule"
-  ]
+  }
 }
