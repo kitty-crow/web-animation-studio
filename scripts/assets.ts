@@ -1,6 +1,7 @@
 import { mkdir, copyFile, rename, rm } from 'node:fs/promises';
 import { join } from 'node:path';
 import { models, release, runtimeName } from '../src/models';
+import { adaptWebGpuModel } from '../src/worker/webgpu-model';
 
 type ModelName = (typeof models)[number];
 
@@ -33,6 +34,9 @@ async function download(name: ModelName,target: string,bytes: number): Promise<v
 async function provisionModel(name: ModelName,target: string): Promise<void> {
  const cached=join('.asset-cache',name),bytes=sizes[name];
  if(!await matches(cached,bytes))await download(name,cached,bytes);
+ const adaptation=adaptWebGpuModel(new Uint8Array(await Bun.file(cached).arrayBuffer()));
+ if(adaptation.rewritten!==3)throw Error('Unexpected RVM pooling node count: '+name+' ('+adaptation.rewritten+')');
+ console.log('Verified WebGPU pooling adaptation for '+name+' ('+adaptation.rewritten+' nodes)');
  await copyFile(cached,join(target,name));
  console.log('Provisioned '+name);
 }
