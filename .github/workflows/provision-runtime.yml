@@ -1,0 +1,27 @@
+name: Provision verified ONNX runtime
+on:
+  push:
+    branches: [feat/modular-typescript]
+    paths: ['.github/workflows/provision-runtime.yml']
+permissions:
+  contents: write
+jobs:
+  archive:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: feat/modular-typescript
+      - name: Verify and commit archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          archive=onnxruntime-web-1.22.0.tgz
+          if [ ! -f "$archive" ]; then
+            curl --fail --location --retry 3 'https://registry.npmjs.org/onnxruntime-web/-/onnxruntime-web-1.22.0.tgz' --output "$archive"
+          fi
+          printf '%s  %s\n' 'e293551f9d36d003e293d0f2937fee7b3dfdcef76d71d1449b55e2d4157c7aea' "$archive" | sha256sum --check
+          git add -- "$archive"
+          if git diff --cached --quiet; then exit 0; fi
+          git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' commit -m 'Vendor verified ONNX Runtime Web 1.22.0 archive'
+          git push origin HEAD:refs/heads/feat/modular-typescript
