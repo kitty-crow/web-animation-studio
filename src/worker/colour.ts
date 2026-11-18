@@ -9,6 +9,6 @@ function expand(v: number){return (v<<3)|(v>>2)}
 export function key(r: number,g: number,b: number){return (Math.round(r*31/255)<<10)|(Math.round(g*31/255)<<5)|Math.round(b*31/255)}
 export function distance(a: number[],b: number[]){const r=a[0]-b[0],g=a[1]-b[1],bl=a[2]-b[2];return 2*r*r+4*g*g+3*bl*bl}
 function rgbDistance(r: number,g: number,b: number,c: number[]){const x=r-c[0],y=g-c[1],z=b-c[2];return 2*x*x+4*y*y+3*z*z}
-export function nearest(c: number[],p: number[][]){let best=0,d=Infinity;for(let i=0;i<p.length;i++){let v=distance(c,p[i]);if(v<d){d=v;best=i}}return best}
+export function nearest(c: number[],p: number[][]){let best=0,d=Infinity;for(let i=0;i<p.length;i++){const v=distance(c,p[i]);if(v<d){d=v;best=i}}return best}
 export const NES_MAP=new Uint8Array(32768);for(let i=0;i<32768;i++) NES_MAP[i]=nearest(RGB555[i],NES);
 export const clamp=(v: number)=>Math.max(0,Math.min(255,v));

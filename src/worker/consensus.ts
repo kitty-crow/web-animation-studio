@@ -21,7 +21,7 @@ export function consensusMasks(frames: Frame[],w: number,h: number,settings: Set
   for(let p=0;p<n;p++)candidate[p]=data[4*p+3]<128||(valid[p]&&view[p]===mode[p])?1:0;
   const push=(p: number)=>{if(candidate[p]&&!mask[p]){mask[p]=1;queue[tail++]=p}};
   for(let x=0;x<w;x++){push(x);push((h-1)*w+x)}for(let y=0;y<h;y++){push(y*w);push(y*w+w-1)}
-  while(head<tail){let p=queue[head++],x=p%w;if(x)push(p-1);if(x<w-1)push(p+1);if(p>=w)push(p-w);if(p<n-w)push(p+w)}
+  while(head<tail){const p=queue[head++],x=p%w;if(x)push(p-1);if(x<w-1)push(p+1);if(p>=w)push(p-w);if(p<n-w)push(p+w)}
   // Exposed pixels behind a moving character are recognised by the spatially
   // connected consensus, including the character's original position.
   if(i%8===0)send(`Building temporal background mask ${i+1} / ${count}…`,17+Math.floor(5*i/count));
