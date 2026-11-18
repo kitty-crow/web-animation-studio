@@ -2,6 +2,6 @@
 
 ONNX runtime archive extraction, asset resolution and probe graph.
 
-Exports: `unpackRuntime`, `runtimeAsset`, `runtimeProbeModel`.
+Exports: `RuntimeAssets`, `unpackRuntime`, `runtimeAsset`, `runtimeProbeModel`.
 
 [Source](../../../../src/worker/runtime.ts)

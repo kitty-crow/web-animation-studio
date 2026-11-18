@@ -1,10 +1,11 @@
 import { errorText } from '../types';
 import { send } from './progress';
+export type RuntimeAssets = Map<string,Uint8Array<ArrayBuffer>>;
 const ORT_BASES=['https://cdn.jsdelivr.net/npm/onnxruntime-web@1.22.0/dist/','https://unpkg.com/onnxruntime-web@1.22.0/dist/'];
 const ORT_FILES=new Set(['ort.wasm.min.mjs','ort.webgpu.min.mjs','ort-wasm-simd-threaded.mjs','ort-wasm-simd-threaded.wasm','ort-wasm-simd-threaded.jsep.mjs','ort-wasm-simd-threaded.jsep.wasm']);
 // Read the official npm tarball locally. Only exact runtime paths are accepted.
 export async function unpackRuntime(files: File[]){
- const assets=new Map<string,Uint8Array<ArrayBuffer>>();
+ const assets: RuntimeAssets=new Map();
  for(const file of files){
   if(ORT_FILES.has(file.name)){assets.set(file.name,new Uint8Array(await file.arrayBuffer()));continue;}
   if(!/\.(?:tgz|gz)$/i.test(file.name))throw Error('Unsupported runtime file: '+file.name);
@@ -28,7 +29,7 @@ export async function unpackRuntime(files: File[]){
  }
  return assets;
 }
-export async function runtimeAsset(name: string,assets: Map<string,Uint8Array<ArrayBuffer>>){
+export async function runtimeAsset(name: string,assets: RuntimeAssets){
  const local=assets.get(name);if(local)return local;
  if(assets.size)throw Error('Local runtime is missing '+name+'. Select the complete official 1.22.0 .tgz package. No network request was made.');
  const errors=[];for(const root of ORT_BASES){const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),15000);try{const response=await fetch(root+name,{signal:controller.signal});if(!response.ok)throw Error('HTTP '+response.status);return new Uint8Array(await response.arrayBuffer())}catch(e){errors.push(root+': '+errorText(e))}finally{clearTimeout(timer)}}

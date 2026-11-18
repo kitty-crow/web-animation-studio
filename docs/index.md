@@ -44,3 +44,6 @@ The default model is MobileNetV3 FP32. The four ONNX release assets are provisio
 - [scripts/site](modules/scripts/site.md)
 - [scripts/guard](modules/scripts/guard.md)
 - [pages.config](modules/pages.config.md)
+- [src/worker/ort](modules/src/worker/ort.md)
+- [src/worker/probe](modules/src/worker/probe.md)
+- [src/worker/infer](modules/src/worker/infer.md)
