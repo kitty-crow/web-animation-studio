@@ -4,7 +4,7 @@ export function train(frames: Frame[],w: number,h: number,profile: Profile): Pal
  let isNES=profile==='nes',block=isNES?16:8,groupCount=isNES?4:8,perGroup=isNES?3:15,space=isNES?NES:RGB555,tiles: {hist: [number,number][]; avg: number[]; g: number}[]=[],global=new Map<number,number>();
  const n=Math.min(12,frames.length);for(let f=0;f<n;f++){let data=frames[Math.floor(f*(frames.length-1)/Math.max(1,n-1))].data;for(let y=0;y<h;y+=block)for(let x=0;x<w;x+=block){let hist=new Map<number,number>(),rr=0,gg=0,bb=0,num=0,step=block/4;for(let yy=y;yy<Math.min(y+block,h);yy+=step)for(let xx=x;xx<Math.min(x+block,w);xx+=step){let i=(yy*w+xx)*4;if(data[i+3]<128)continue;let k=key(data[i],data[i+1],data[i+2]);if(isNES)k=NES_MAP[k];hist.set(k,(hist.get(k)||0)+1);global.set(k,(global.get(k)||0)+1);let c=space[k];rr+=c[0];gg+=c[1];bb+=c[2];num++}if(num)tiles.push({hist:[...hist],avg:[rr/num,gg/num,bb/num],g:0})}}
  // Extremely sparse transparent images can escape the sample grid. Retain their colours.
- if(!global.size){for(let f of frames){for(let i=0;i<f.data.length;i+=4)if(f.data[i+3]>=128){let k=key(f.data[i],f.data[i+1],f.data[i+2]);if(isNES)k=NES_MAP[k];global.set(k,(global.get(k)||0)+1)}if(global.size)break}}
+ for(const f of frames){if(global.size)break;for(let i=0;i<f.data.length;i+=4){if(f.data[i+3]<128)continue;const rgb=key(f.data[i],f.data[i+1],f.data[i+2]),k=isNES?NES_MAP[rgb]:rgb;global.set(k,(global.get(k)||0)+1)}}
  let backdropKey=0,max=-1;for(let [k,v] of global)if(v>max){max=v;backdropKey=k}let backdrop=space[backdropKey];
  if(!tiles.length)tiles.push({hist:[...global],avg:backdrop,g:0});
  // Deterministic farthest-point cluster seeds, then minimise per-region palette error.
@@ -28,7 +28,7 @@ export function renderFrame(data: Uint8ClampedArray,w: number,h: number,palettes
  let strength=settings.dither/100*(settings.profile==='nes'?76:42);
  for(let y=0;y<h;y+=block)for(let x=0;x<w;x+=block){let errorsByGroup=new Float64Array(palettes.length),tile=(y/block)*gw+x/block,xe=Math.min(w,x+block),ye=Math.min(h,y+block);
  for(let yy=y;yy<ye;yy++)for(let xx=x;xx<xe;xx++){let i=(yy*w+xx)*4;if(data[i+3]<128)continue;let k=key(data[i],data[i+1],data[i+2]);for(let g=0;g<palettes.length;g++){lookup(g,k);errorsByGroup[g]+=errors[g][k]}}
- let best=0;for(let g=1;g<palettes.length;g++)if(errorsByGroup[g]<errorsByGroup[best])best=g;if(settings.stability&&previous){let old=previous[tile];if(errorsByGroup[old]<=errorsByGroup[best]*1.08+300)best=old}groups[tile]=best;let pal=palettes[best];
+ let best=0;for(let g=1;g<palettes.length;g++)if(errorsByGroup[g]<errorsByGroup[best])best=g;const old=previous?.[tile];if(settings.stability&&old!==undefined&&errorsByGroup[old]<=errorsByGroup[best]*1.08+300)best=oldgroups[tile]=best;let pal=palettes[best];
  for(let yy=y;yy<ye;yy++)for(let xx=x;xx<xe;xx++){let p=yy*w+xx,i=p*4;if(data[i+3]<128){out[p]=0;context.transparent=true;continue}let offset=((BAYER[(yy&3)*4+(xx&3)]+.5)/16-.5)*strength,r=clamp(data[i]+offset),g=clamp(data[i+1]+offset),b=clamp(data[i+2]+offset);let idx=lookup(best,key(r,g,b)),ci=context.mapping[best][idx];out[p]=ci;context.used.add(ci)}
  }return {out,groups}
 }

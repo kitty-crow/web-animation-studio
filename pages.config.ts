@@ -1,5 +1,4 @@
-import { definePages } from './vendor/pages/src/index.ts';
-export default definePages({
+export default {
  source: 'templates', out:'site', assets:'assets/pages', copySource:false,
  copy:[{from:'styles',to:'styles'},{from:'version.json',to:'version.json'}],
  pages:[
@@ -15,4 +14,4 @@ export default definePages({
   version:{file:'version.json',selector:'[data-version]',prefix:'v',fallback:'v?'},
   readme:{owner:'kitty-crow',repo:'web-animation-studio',branch:'main',path:'docs/index.md',content:'#readme-content',status:'#readme-status'}
  }
-});
+};

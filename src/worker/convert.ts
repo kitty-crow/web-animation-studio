@@ -24,11 +24,11 @@ export async function convert(bytes: Uint8Array,settings: Settings,model: Uint8A
   // resizing and palette conversion; never the source frames.
   if(transparent){
    let stats=writeSprite(wr,min,w,h,current.out,current.delay,i===0,settings.optimise);skipped+=stats.skipped;omitted+=stats.omitted
-  }else if(settings.optimise){
+  }if(!transparent&&settings.optimise){
    let stats=writeDelta(wr,min,w,h,current.out,next?next.out:meta.loop!==null?first:null,base,current.delay,i===0);
    skipped+=stats.skipped;omitted+=stats.omitted
   }
-  else appendFrame(wr,min,0,0,w,h,current.out,current.delay,transparent,transparent?3:1);
+  if(!transparent&&!settings.optimise)appendFrame(wr,min,0,0,w,h,current.out,current.delay,transparent,transparent?3:1);
   current=next;if(i%2===0||i===frames.length-1)send(`Pixelating and encoding frame ${i+1} of ${frames.length}…`,Math.round(89+10*(i+1)/frames.length))
  }
  wr.byte(0x3b);let blob=wr.finish();reply({type:'done',blob,palettes,colourCount:context.used.size,meta:{...meta,width:w,height:h},transparent,removed,skipped,omitted});

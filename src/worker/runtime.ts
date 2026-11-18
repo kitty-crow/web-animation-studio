@@ -20,8 +20,8 @@ export async function unpackRuntime(files: File[]){
    const name=field(pos,pos+100),prefix=field(pos+345,pos+500),path=prefix?prefix+'/'+name:name,raw=field(pos+124,pos+136);
    if(!/^[0-7]+$/.test(raw))throw Error('Invalid TAR entry size in runtime package.');
    const size=parseInt(raw,8),start=pos+512,end=start+size;if(!Number.isSafeInteger(size)||end>tar.length)throw Error('Truncated runtime archive.');
-   const type=tar[pos+156];if((type===0||type===48)&&path.startsWith('package/dist/')){const key=path.slice('package/dist/'.length);if(ORT_FILES.has(key)){assets.set(key,tar.slice(start,end));found++;}}
-   if((type===0||type===48)&&path==='package/package.json'){const pkg=JSON.parse(decoder.decode(tar.subarray(start,end)));if(pkg.name!=='onnxruntime-web'||pkg.version!=='1.22.0')throw Error('Select onnxruntime-web version 1.22.0, not '+pkg.name+' '+pkg.version+'.');}
+   const type=tar[pos+156],regular=type===0||type===48,key=path.slice('package/dist/'.length);if(regular&&path.startsWith('package/dist/')&&ORT_FILES.has(key)){assets.set(key,tar.slice(start,end));found++;}
+   if(regular&&path==='package/package.json')validatePackage(decoder.decode(tar.subarray(start,end)));
    pos=start+Math.ceil(size/512)*512;
   }
   if(!found)throw Error('No ONNX runtime assets found. Select the official onnxruntime-web-1.22.0.tgz archive.');
@@ -43,4 +43,9 @@ export function runtimeProbeModel(){
  const node=[...str(1,'x'),...str(2,'y'),...str(4,'Relu')];
  const graph=[...bytes(1,node),...str(2,'pixel_forge_runtime_probe'),...bytes(11,value('x')),...bytes(12,value('y'))];
  return Uint8Array.from([...int(1,8),...bytes(7,graph),...bytes(8,int(2,13))]);
+}
+
+function validatePackage(source: string): void {
+ const pkg=JSON.parse(source) as {name?: string;version?: string};
+ if(pkg.name!=='onnxruntime-web'||pkg.version!=='1.22.0')throw Error('Select onnxruntime-web version 1.22.0, not '+pkg.name+' '+pkg.version+'.');
 }

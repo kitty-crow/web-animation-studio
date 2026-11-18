@@ -11,7 +11,7 @@ export function appendFrame(wr: Writer,min: number,x: number,y: number,w: number
 // Restore-to-previous avoids GIF disposal-to-background colour artefacts.
 export function writeSprite(wr: Writer,min: number,w: number,h: number,current: Uint8Array,delay: number,first: boolean,optimise: boolean){
  let x0=w,y0=h,x1=-1,y1=-1;for(let p=0;p<current.length;p++)if(current[p]){const x=p%w,y=(p/w)|0;x0=Math.min(x0,x);x1=Math.max(x1,x);y0=Math.min(y0,y);y1=Math.max(y1,y)}
- if(first||!optimise){x0=y0=0;x1=w-1;y1=h-1}else if(x1<0){x0=y0=x1=y1=0}
+ if(first||!optimise){x0=y0=0;x1=w-1;y1=h-1}if(x1<0){x0=y0=x1=y1=0}
  const rw=x1-x0+1,rh=y1-y0+1,indices=new Uint8Array(rw*rh);for(let y=0;y<rh;y++)indices.set(current.subarray((y+y0)*w+x0,(y+y0)*w+x0+rw),y*rw);
  appendFrame(wr,min,x0,y0,rw,rh,indices,delay,true,3);return {skipped:0,omitted:w*h-rw*rh};
 }
@@ -21,7 +21,7 @@ export function writeDelta(wr: Writer,min: number,w: number,h: number,current: U
  let x0=w,y0=h,x1=-1,y1=-1,clear=false;
  function include(p: number){let x=p%w,y=Math.floor(p/w);x0=Math.min(x0,x);y0=Math.min(y0,y);x1=Math.max(x1,x);y1=Math.max(y1,y)}
  for(let p=0;p<current.length;p++){
-  if(current[p]!==base[p]){if(current[p]===0)throw Error('Invalid GIF delta canvas.');include(p)}
+  if(current[p]!==base[p]&&current[p]===0)throw Error('Invalid GIF delta canvas.');if(current[p]!==base[p])include(p)
   if(next&&current[p]!==0&&next[p]===0){clear=true;include(p)}
  }
  // A complete first frame resets the logical canvas on replay. The last disposal
@@ -29,7 +29,7 @@ export function writeDelta(wr: Writer,min: number,w: number,h: number,current: U
  if(first){x0=0;y0=0;x1=w-1;y1=h-1}
  if(x1<0){x0=y0=x1=y1=0}
  let rw=x1-x0+1,rh=y1-y0+1,delta=new Uint8Array(rw*rh),skipped=0;
- for(let y=0;y<rh;y++)for(let x=0;x<rw;x++){let p=(y+y0)*w+x+x0;if(current[p]!==base[p])delta[y*rw+x]=current[p];else if(current[p]!==0)skipped++}
+ for(let y=0;y<rh;y++)for(let x=0;x<rw;x++){let p=(y+y0)*w+x+x0;if(current[p]!==base[p])delta[y*rw+x]=current[p];if(current[p]===base[p]&&current[p]!==0)skipped++}
  appendFrame(wr,min,x0,y0,rw,rh,delta,delay,true,clear?2:1);
  base.set(current);if(clear)for(let y=y0;y<=y1;y++)base.fill(0,y*w+x0,y*w+x1+1);
  return {skipped,omitted:w*h-rw*rh};

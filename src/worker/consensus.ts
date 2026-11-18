@@ -11,7 +11,7 @@ export function consensusMasks(frames: Frame[],w: number,h: number,settings: Set
   if(p%Math.max(1,Math.floor(n/20))===0)send(`Analysing temporal colours · ${Math.floor(100*p/n)}%`,13+Math.floor(4*p/n),{stage:'consensus-histogram',waiting:true});
   histogram.clear();let best=0, max=0;
   for(let i=0;i<count;i++){const v=views[i][p];if(frames[i].data[4*p+3]<128)continue;const k=(histogram.get(v)||0)+1;histogram.set(v,k);if(k>max){max=k;best=v}}
-  if(settings.bgMethod==='legacy'){for(let i=0;i<count;i++)if(frames[i].data[4*p+3]>=128&&(histogram.get(views[i][p])||0)>1)masks[i][p]=1;continue}
+  if(settings.bgMethod==='legacy'){for(let i=0;i<count;i++)masks[i][p]=Number(frames[i].data[4*p+3]>=128&&(histogram.get(views[i][p])||0)>1);continue}
   if(max>=min){mode[p]=best;valid[p]=1}
  }
  if(settings.bgMethod==='legacy')return masks;
