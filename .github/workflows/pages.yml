@@ -14,6 +14,7 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v6
         with:
@@ -26,10 +27,27 @@ jobs:
         working-directory: vendor/code-guards
       - run: bun install
         working-directory: vendor/pages
-      - run: bun run build
+      - name: Validate Pages configuration and version
+        timeout-minutes: 2
+        run: |
+          bun vendor/pages/src/cli.ts version check
+          bun vendor/pages/src/cli.ts check pages.config.ts
+      - name: TypeScript compilation check
+        timeout-minutes: 2
+        run: bunx --no-install tsc --noEmit
+      - name: GIF regression tests
+        timeout-minutes: 2
+        run: bun run test
+      - name: All Code Guards (strict)
+        timeout-minutes: 10
+        run: bun run guard
+      - name: Build validated site and provision model assets
+        timeout-minutes: 5
+        run: bun scripts/site.ts
       - name: Install Chromium
         run: bunx playwright install --with-deps chromium
       - name: Browser conversion smoke test
+        timeout-minutes: 5
         run: bun run smoke
       - uses: actions/configure-pages@v5
         if: github.ref == 'refs/heads/main'
