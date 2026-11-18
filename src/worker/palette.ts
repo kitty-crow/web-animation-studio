@@ -22,7 +22,12 @@ export function train(frames: Frame[],w: number,h: number,profile: Profile): Pal
  return palettes
 }
 const BAYER=[0,8,2,10,12,4,14,6,3,11,1,9,15,7,13,5];
-export function renderFrame(data: Uint8ClampedArray,w: number,h: number,palettes: Palette[],settings: Settings,previous: Uint8Array | null,context: PaletteContext){
+interface RenderInput {
+ w: number; h: number; palettes: Palette[]; settings: Settings;
+ previous: Uint8Array | null; context: PaletteContext;
+}
+export function renderFrame(data: Uint8ClampedArray,input: RenderInput){
+ const {w,h,palettes,settings,previous,context}=input;
  const block=settings.profile==='nes'?16:8,gw=Math.ceil(w/block),out=new Uint8Array(w*h),groups=new Uint8Array(gw*Math.ceil(h/block)),errors=context.errors,indices=context.indices;
  function lookup(g: number,k: number){if(indices[g][k]===255){const p=palettes[g],c=RGB555[k],at=nearest(c,p);indices[g][k]=at;errors[g][k]=distance(c,p[at])}return indices[g][k]}
  const strength=settings.dither/100*(settings.profile==='nes'?76:42);

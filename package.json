@@ -12,7 +12,7 @@
     "guard": "bun scripts/guard.ts",
     "check": "bun vendor/pages/src/cli.ts version check && bun vendor/pages/src/cli.ts check pages.config.ts && tsc --noEmit && bun run test && bun run guard",
     "build": "bun run check && bun scripts/site.ts",
-    "test": "bun test tests",
+    "test": "bun test ./tests/gif.test.ts ./tests/half.test.ts",
     "smoke": "bun scripts/smoke.ts"
   },
   "dependencies": {

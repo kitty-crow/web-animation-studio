@@ -7,8 +7,8 @@
 .stage{min-height:245px;height:clamp(245px,30vw,410px);margin:0 13px 13px;border:1px solid var(--line);border-radius:9px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;background-color:#14171b;background-image:linear-gradient(45deg,#1b1e24 25%,transparent 25%),linear-gradient(-45deg,#1b1e24 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#1b1e24 75%),linear-gradient(-45deg,transparent 75%,#1b1e24 75%);background-size:20px 20px;background-position:0 0,0 10px,10px -10px,-10px 0}
 .stage img{width:100%;height:100%;object-fit:contain;display:block}
 .stage img.pixel{image-rendering:pixelated}
-.placeholder{display:grid;justify-items:center;gap:10px;padding:20px;text-align:center;color:var(--muted);font-size:12px}
-.placeholder svg{color:#69717e;width:37px;height:37px}
+.preview-empty{display:grid;justify-items:center;gap:10px;padding:20px;text-align:center;color:var(--muted);font-size:12px}
+.preview-empty svg{color:#69717e;width:37px;height:37px}
 .view-foot{padding:0 16px 15px;color:var(--muted);font-size:11px;min-height:30px}
 .progress-wrap{padding:15px 17px;border-top:1px solid var(--line);display:grid;gap:10px}
 .progress-top{display:flex;align-items:center;justify-content:space-between;font-size:12px;gap:10px}

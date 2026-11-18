@@ -11,7 +11,7 @@ async function fixture(): Promise<Buffer> {
  for(let frame=0;frame<2;frame++){
   const indices=new Uint8Array(64*64);
   for(let y=12;y<52;y++)for(let x=16+frame;x<48+frame;x++)indices[y*64+x]=1;
-  appendFrame(wr,min,0,0,64,64,indices,8,false,1);
+  appendFrame(wr,min,{x:0,y:0,w:64,h:64,indices,delay:8,transparent:false,dispose:1});
  }
  wr.byte(0x3b);
  return Buffer.from(await wr.finish().arrayBuffer());
@@ -60,5 +60,5 @@ try {
  console.log('WASM RVM inference with the committed archive passed.');
 } finally {
  await browser.close();
- server.stop(true);
+ await server.stop(true);
 }

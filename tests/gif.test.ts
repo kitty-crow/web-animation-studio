@@ -4,8 +4,8 @@ import { appendFrame, createWriter, writeSprite } from '../src/worker/encode';
 
 test('GIF metadata and transparent disposal survive encoding',async ()=>{
  const {wr,min}=createWriter(2,1,[[0,0,0],[255,0,0],[0,255,0]],0);
- writeSprite(wr,min,2,1,new Uint8Array([1,0]),7,true,true);
- writeSprite(wr,min,2,1,new Uint8Array([0,2]),12,false,true);
+ writeSprite(wr,min,{w:2,h:1,current:new Uint8Array([1,0]),delay:7,first:true,optimise:true});
+ writeSprite(wr,min,{w:2,h:1,current:new Uint8Array([0,2]),delay:12,first:false,optimise:true});
  wr.byte(0x3b);
  const frames: number[][]=[];
  const data=new Uint8Array(await wr.finish().arrayBuffer());
@@ -23,7 +23,7 @@ test('GIF LZW dictionary expansion preserves indexed pixels',async ()=>{
  }
  const palette=Array.from({length:64},(_,i)=>[i,i,i]);
  const {wr,min}=createWriter(width,height,palette,null);
- appendFrame(wr,min,0,0,width,height,indices,5,false,1);
+ appendFrame(wr,min,{x:0,y:0,w:width,h:height,indices,delay:5,transparent:false,dispose:1});
  wr.byte(0x3b);
  const data=new Uint8Array(await wr.finish().arrayBuffer());
  let decoded: number[]=[];
