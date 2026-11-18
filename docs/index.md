@@ -50,3 +50,6 @@ The default model is MobileNetV3 FP32. The four ONNX release assets are provisio
 - [tests/gif.test](modules/tests/gif.test.md)
 - [tests/half.test](modules/tests/half.test.md)
 - [worker/console](modules/worker/console.md)
+- [worker/onnx-wire](modules/worker/onnx-wire.md)
+- [worker/webgpu-model](modules/worker/webgpu-model.md)
+- [tests/webgpu-model.test](modules/tests/webgpu-model.test.md)

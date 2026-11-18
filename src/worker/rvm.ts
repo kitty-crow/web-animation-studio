@@ -5,6 +5,7 @@ import { unpackRuntime, type RuntimeAssets } from './runtime';
 import { prepareOrt } from './ort';
 import { probeRuntime } from './probe';
 import { inferMasks, type InputFrames } from './infer';
+import { adaptWebGpuModel } from './webgpu-model';
 // The probe isolates runtime initialisation from model loading. A worker-level rejection signal catches asynchronous Emscripten failures that can otherwise leave the session promise unresolved.
 async function runBackend(input: InputFrames,model: Uint8Array,assets: RuntimeAssets,backend: Backend): Promise<Uint8Array[]> {
  let session: InferenceSession|null=null,stage='runtime module';
@@ -24,12 +25,14 @@ async function runBackend(input: InputFrames,model: Uint8Array,assets: RuntimeAs
   stage=step;send(backend.toUpperCase()+' · '+label,percent,{stage:backend+'-'+step,note,waiting});
  };
  try {
+  const adapted=backend==='webgpu'?adaptWebGpuModel(model):{bytes:model,rewritten:0};
+  if(adapted.rewritten)reply({type:'runtime-diagnostic',message:'WebGPU: adapted '+adapted.rewritten+' RVM AveragePool nodes to SAME_UPPER padding'});
   const ort=await prepareOrt(backend,assets,urls,report);
   const options: InferenceSession.SessionOptions={executionProviders:[backend],graphOptimizationLevel:'basic',logSeverityLevel:2};
   await probeRuntime(ort,options,bootstrapFailure,report);
   report('RVM graph','Loading RVM model and preparing graph…',33,'Runtime test passed · Model '+(model.byteLength/1048576).toFixed(1)+' MB · '+input.w+' × '+input.h+' · Basic graph optimisations; 120-second watchdog.');
   const sessionStart=performance.now();
-  session=await Promise.race([ort.InferenceSession.create(model,options),bootstrapFailure]);
+  session=await Promise.race([ort.InferenceSession.create(adapted.bytes,options),bootstrapFailure]);
   report('model input validation','Validating RVM model inputs and outputs…',34,'Session created in '+((performance.now()-sessionStart)/1000).toFixed(1)+'s');
   const masks=await inferMasks(ort,session,backend,input,report);
   report('inference complete','Inference complete; releasing session…',78,'Releasing ONNX tensors and backend resources');
