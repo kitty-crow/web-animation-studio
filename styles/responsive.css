@@ -1,0 +1,17 @@
+@media(max-width:850px){.wrap{padding:20px 16px}
+.grid{grid-template-columns:1fr}
+.settings{grid-template-columns:1fr 1fr}
+.settings>.rule{display:none}
+.settings>.full{grid-column:1/-1}
+.top{margin-bottom:24px}
+.stage{height:300px}
+}
+@media(max-width:530px){.settings{grid-template-columns:1fr}
+.views{grid-template-columns:1fr}
+.stage{height:240px}
+.metrics{grid-template-columns:repeat(2,1fr)}
+.local{font-size:10px}
+.brand{font-size:17px}
+footer{flex-direction:column}
+.intro{margin-bottom:20px}
+}

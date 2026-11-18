@@ -1,0 +1,12 @@
+.progress-meta{display:flex;justify-content:space-between;flex-wrap:wrap;gap:5px 14px;color:var(--muted);font:11px/1.5 ui-monospace,Consolas,monospace}
+.progress-note{font-size:11px;color:var(--muted);line-height:1.5}
+.progress-track{position:relative}
+.progress-track.waiting::after{content:"";position:absolute;inset:0 auto 0 0;width:22%;background:linear-gradient(90deg,transparent,#b4ed9180,transparent);animation:progress-sweep 2s linear infinite}
+@keyframes progress-sweep{from{transform:translateX(-100%)}
+to{transform:translateX(550%)}
+}
+@media(prefers-reduced-motion:reduce){.progress-track.waiting::after{animation:none;display:none}
+}
+.diagnostics{font-size:11px;color:var(--muted)}
+.diagnostics summary{cursor:pointer;color:var(--text)}
+.diagnostics pre{margin:8px 0 0;max-height:180px;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;font:11px/1.6 ui-monospace,Consolas,monospace;background:var(--raised);padding:10px;border-radius:6px}
